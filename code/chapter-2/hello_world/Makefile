@@ -1,19 +1,19 @@
-CLANG = clang
+CLANG = clang-11
 
 EXECABLE = monitor-exec
 
 BPFCODE = bpf_program
 
-BPFTOOLS = /kernel-src/samples/bpf
+kernel-src = /home/chen/test/linux
+BPFTOOLS = ${kernel-src}/samples/bpf
 BPFLOADER = $(BPFTOOLS)/bpf_load.c
 
-CCINCLUDE += -I/kernel-src/tools/testing/selftests/bpf
+CCINCLUDE += -I${kernel-src}/tools/testing/selftests/bpf
 
-LOADINCLUDE += -I/kernel-src/samples/bpf
-LOADINCLUDE += -I/kernel-src/tools/lib
-LOADINCLUDE += -I/kernel-src/tools/perf
-LOADINCLUDE += -I/kernel-src/tools/include
-LIBRARY_PATH = -L/usr/local/lib64
+LOADINCLUDE += -I${kernel-src}/samples/bpf
+LOADINCLUDE += -I${kernel-src}/tools/lib
+LOADINCLUDE += -I${kernel-src}/tools/perf
+LOADINCLUDE += -I${kernel-src}/tools/include
 BPFSO = -lbpf
 
 # Setting -DHAVE_ATTR_TEST=0 for the kernel containing below patch:
@@ -30,7 +30,7 @@ BPFSO = -lbpf
 # See more context at:
 # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=06f84d1989b7e58d56fa2e448664585749d41221
 # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=fce9501aec6bdda45ef3a5e365a5e0de7de7fe2d
-CFLAGS += $(shell grep -q "define HAVE_ATTR_TEST 1" /kernel-src/tools/perf/perf-sys.h \
+CFLAGS += $(shell grep -q "define HAVE_ATTR_TEST 1" ${kernel-src}/tools/perf/perf-sys.h \
                   && echo "-DHAVE_ATTR_TEST=0")
 
 .PHONY: clean $(CLANG) bpfload build
@@ -39,10 +39,10 @@ clean:
 	rm -f *.o *.so $(EXECABLE)
 
 build: ${BPFCODE.c} ${BPFLOADER}
-	$(CLANG) -O2 -target bpf -c $(BPFCODE:=.c) $(CCINCLUDE) -o ${BPFCODE:=.o}
+	$(CLANG) -O2 -target bpf -c $(BPFCODE:=.c) $(CCINCLUDE) -o ${BPFCODE:=.o} -I/usr/include/x86_64-linux-gnu
 
 bpfload: build
-	clang $(CFLAGS) -o $(EXECABLE) -lelf $(LOADINCLUDE) $(LIBRARY_PATH) $(BPFSO) \
+	$(CLANG) $(CFLAGS) -o $(EXECABLE) -lelf $(LOADINCLUDE) $(BPFSO) \
         $(BPFLOADER) loader.c
 
 $(EXECABLE): bpfload

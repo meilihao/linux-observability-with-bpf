@@ -55,3 +55,38 @@ We are updating the book so that future prints and PDFs are updated but your cop
 - This examples uses a `Makefile` instead of  `compile-bpf.sh` and `compile-loader.sh`;
 - Some code in `bpf_program.c` is different;
 - Compiled file names differs, both for the loader and the bpf shared object;
+
+---
+# my
+## build
+```
+$ lsb_release -a
+No LSB modules are available.
+Distributor ID: Deepin
+Description:    Deepin 20
+Release:        20
+Codename:       n/a
+$ uname -r
+5.4.70-amd64-desktop
+$ git clone --depth 1 -b v5.4.70 git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+$ git clone --depth 1 -b v5.4.70 git://kernel.source.codeaurora.cn/pub/scm/linux/kernel/git/stable/linux.git // for fast by using [Git mirror available in Beijing](https://www.kernel.org/beijing-git-mirror.html)
+$ cd linux && make header
+$ export LinuxSrc=/home/chen/test/linux
+$ sudo apt install libelf-dev libbpf-dev
+$ cd ${linux-observability-with-bpf.git/code/chapter-2/hello_world}
+$ clang-11 -O2 -target bpf -c bpf_program.c -o bpf_program.o -I/usr/include/x86_64-linux-gnu/ # /usr/include/x86_64-linux-gnu/ = ${LinuxSrc}/usr/include
+$ make bpfload # = clang-11 -DHAVE_ATTR_TEST=0 -o monitor-exec -lelf ${LinuxSrc}/samples/bpf/bpf_load.c loader.c -I${LinuxSrc}/samples/bpf -I${LinuxSrc}/tools/perf -I${LinuxSrc}/tools/include -lbpf
+$ sudo ./monitor-exec
+```
+
+## FAQ
+### `clang-11 -O2 -target bpf -c bpf_program.c -o bpf_program.o` get error: `/usr/include/linux/types.h:5:10: fatal error: 'asm/types.h' file not found`
+use `-I/usr/include/x86_64-linux-gnu/`.
+
+> `arch asm` include `linux asm`
+
+### 'libelf.h' file not found
+`apt install libelf-dev`
+
+### can not found -lbpf
+`apt install libbpf-dev`
