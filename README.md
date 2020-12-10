@@ -12,6 +12,8 @@ For that reason, the purpose of this repo is to keep them as updated as possible
 Examples can be slightly different in this repository because of that. The reason is that we didn't want to couple the book itself to Vagrant as a tool.
 If you don't want a Vagrant based environment, make sure you have: [bcc](https://github.com/iovisor/bcc/blob/master/INSTALL.md) and [clang](https://clang.llvm.org/)
 
+### install bcc deps in deepin v20
+`apt install  apt-get install clang-11 lldb-11 lld-11 libclang-11-dev luajit libluajit-5.1-dev arping iperf netperf cmake bison flex`
 
 ## Environment setup
 
