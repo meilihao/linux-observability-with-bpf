@@ -12,8 +12,26 @@ For that reason, the purpose of this repo is to keep them as updated as possible
 Examples can be slightly different in this repository because of that. The reason is that we didn't want to couple the book itself to Vagrant as a tool.
 If you don't want a Vagrant based environment, make sure you have: [bcc](https://github.com/iovisor/bcc/blob/master/INSTALL.md) and [clang](https://clang.llvm.org/)
 
-### install bcc deps in deepin v20
-`apt install  apt-get install clang-11 lldb-11 lld-11 libclang-11-dev luajit libluajit-5.1-dev arping iperf netperf cmake bison flex`
+### build bcc
+```bash
+# # [get bcc code by see here](https://github.com/iovisor/bcc/blob/master/INSTALL.md#libbpf-submodule)
+sudo apt install apt-get install clang-11 lldb-11 lld-11 libclang-11-dev luajit libluajit-5.1-dev arping iperf netperf cmake bison flex
+cd <bcc_resource>
+mkdir bcc/build && cd bcc/build
+cmake ..
+make
+sudo make install # bcc会被安装在/usr/local/share/bcc(可使用`-DCMAKE_INSTALL_PREFIX=/usr`修改安装路径), 默认编译使用的是python2 binding(但也可能是根据/usr/bin/python进行推测)
+sudo ldconfig # 刷新`.so` cache
+sudo /usr/local/share/bcc/tools/tcpconnect # 执行bcc tools验证bcc. 需要`sudo ldconfig`, 避免执行时报`OSError: libbcc.so.0: cannot open shared object file: No such file or directory`
+cmake -DPYTHON_CMD=python3 .. # build python3 binding
+pushd src/python/
+make
+sudo make install
+popd
+ls -l /usr/bin/python
+sudo ln -s -f $(which python3) /usr/bin/python
+sudo PYTHONPATH=/usr/local/lib/python3/dist-packages ./tcptop -C 1 3 # 因为安装在`/usr/local/lib/python3`的原因需要添加PYTHONPATH, 应该可通过DCMAKE_INSTALL_PREFIX修正或使用`sudo mv /usr/local/lib/python3/dist-packages/bcc* /usr/lib/python3/dist-packages`修正路径
+```
 
 ## Environment setup
 
